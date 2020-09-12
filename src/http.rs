@@ -9,6 +9,7 @@ use reqwest::{
     redirect::Policy,
     blocking::{Client, Response}
 };
+use std::process;
 use mime::{Mime, IMAGE, TEXT, HTML};
 use humansize::{FileSize, file_size_opts as options};
 use log::{debug, trace};
@@ -178,6 +179,26 @@ impl Retriever {
     }
 }
 
+pub fn describe_image(url: &str) -> Option<String> {
+    // https://github.com/ludios/describe-image
+    let result = process::Command::new("describe-image").arg(url).output();
+    let output = match result {
+        Err(err) => {
+            debug!("describe-image failed: {:?}", err);
+            return None;
+        },
+        Ok(out) => out
+    };
+    let description = String::from_utf8_lossy(&output.stdout);
+    let description = description.trim();
+    if description == "" {
+        debug!("describe-image did not output a description");
+        None
+    } else {
+        Some(format!("[Guess:] {}", description))
+    }
+}
+
 pub fn fix_url(url: &str) -> String {
     if url.starts_with("https://mobile.twitter.com/") {
         url.replacen("https://mobile.twitter.com/", "https://twitter.com/", 1)
@@ -189,10 +210,10 @@ pub fn fix_url(url: &str) -> String {
 pub fn resolve_url(url: &str, rtd: &Rtd) -> Result<String, Error> {
     let client = rtd.get_client()?;
     let mut resp = client.request(&fix_url(url))?;
-    get_title(&mut resp, rtd, false)
+    get_title(url, &mut resp, rtd, false)
 }
 
-pub fn get_title(resp: &mut Response, rtd: &Rtd, dump: bool) -> Result<String, Error> {
+pub fn get_title(url: &str, resp: &mut Response, rtd: &Rtd, dump: bool) -> Result<String, Error> {
     // get content type
     let content_type = resp.headers().get(header::CONTENT_TYPE)
         .and_then(|typ| typ.to_str().ok())
@@ -230,7 +251,7 @@ pub fn get_title(resp: &mut Response, rtd: &Rtd, dump: bool) -> Result<String, E
             Some(mime) => {
                 match (mime.type_(), mime.subtype()) {
                     (TEXT, HTML) => parse_title(&contents),
-                    (IMAGE, _) => parse_title(&contents)
+                    (IMAGE, _) => describe_image(url)
                         .or_else(|| get_image_metadata(&rtd, &body))
                         .or_else(|| get_mime(&rtd, &mime, &size)),
                     _ => parse_title(&contents)

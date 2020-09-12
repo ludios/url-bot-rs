@@ -203,7 +203,7 @@ fn scrape_title(args: &Args) -> Result<(), Error> {
     feat!(rtd, report_metadata) = args.flag_metadata;
     feat!(rtd, report_mime) = args.flag_mime;
 
-    let ret = match get_title(&mut resp, &rtd, args.flag_curl) {
+    let ret = match get_title(&args.arg_url, &mut resp, &rtd, args.flag_curl) {
         Ok(t) => {
             if !args.flag_curl { println!("{}", t) };
             0
