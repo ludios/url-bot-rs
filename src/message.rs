@@ -250,7 +250,7 @@ fn process_titles(rtd: &Rtd, db: &Database, msg: &Msg) -> impl Iterator<Item = T
                 } else {
                     previous_post.user
                 };
-                format!("⤷ {} → {} {} ({})",
+                format!("« {} → {} {} ({}) »",
                     title,
                     previous_post.time_created,
                     user,
@@ -264,7 +264,7 @@ fn process_titles(rtd: &Rtd, db: &Database, msg: &Msg) -> impl Iterator<Item = T
                         error!("SQL error: {}", err);
                     }
                 }
-                format!("⤷ {}", title)
+                format!("« {} »", title)
             },
             Err(err) => {
                 error!("SQL error: {}", err);
@@ -513,7 +513,7 @@ mod tests {
     fn test_process_titles_value() {
         pt("http://127.0.0.1:8084/")
             .iter()
-            .for_each(|v| assert_eq!(&TITLE("⤷ |t|".to_string()), v));
+            .for_each(|v| assert_eq!(&TITLE("« |t| »".to_string()), v));
     }
 
     #[test]
@@ -534,7 +534,7 @@ mod tests {
         assert!(if let TITLE(_) = res[0] { true } else { false });
 
         res.iter()
-            .for_each(|v| assert_eq!(TITLE("⤷ |t|".to_string()), *v));
+            .for_each(|v| assert_eq!(TITLE("« |t| »".to_string()), *v));
 
         // pre-post
         let res: Vec<_> = process_titles(&rtd, &db, &msg).collect();
@@ -545,9 +545,9 @@ mod tests {
             .for_each(|v| {
                 println!("{:?}", v);
                 if let TITLE(s) = v {
-                    assert!(s.starts_with("⤷ |t| → "));
+                    assert!(s.starts_with("« |t| → "));
                     assert!(date.is_match(&s));
-                    assert!(s.ends_with(" testnick (#test)"));
+                    assert!(s.ends_with(" testnick (#test) »"));
                 }
             });
 
@@ -562,9 +562,9 @@ mod tests {
             .for_each(|v| {
                 println!("{:?}", v);
                 if let TITLE(s) = v {
-                    assert!(s.starts_with("⤷ |t| → "));
+                    assert!(s.starts_with("« |t| → "));
                     assert!(date.is_match(&s));
-                    assert!(s.ends_with(" t\u{200c}estnick (#test)"));
+                    assert!(s.ends_with(" t\u{200c}estnick (#test) »"));
                 }
             });
 
@@ -578,7 +578,7 @@ mod tests {
         assert!(if let TITLE(_) = res[0] { true } else { false });
 
         res.iter()
-            .for_each(|v| assert_eq!(TITLE("⤷ |t|".to_string()), *v));
+            .for_each(|v| assert_eq!(TITLE("« |t| »".to_string()), *v));
 
         // cross-posted history is enabled
         feat!(rtd, cross_channel_history) = true;
@@ -591,9 +591,9 @@ mod tests {
             .for_each(|v| {
                 println!("{:?}", v);
                 if let TITLE(s) = v {
-                    assert!(s.starts_with("⤷ |t| → "));
+                    assert!(s.starts_with("« |t| → "));
                     assert!(date.is_match(&s));
-                    assert!(s.ends_with(" testnick (#test)"));
+                    assert!(s.ends_with(" testnick (#test) »"));
                 }
             });
 

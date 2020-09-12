@@ -17,7 +17,7 @@ channel, adding a certain je ne sais quoi to your IRC experience.
 For example:
 
     <user> http://rust-lang.org/
-    <url-bot-rs> ⤷ The Rust Programming Language
+    <url-bot-rs> « The Rust Programming Language »
 
 ## Dependencies
 
