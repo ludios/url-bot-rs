@@ -178,9 +178,17 @@ impl Retriever {
     }
 }
 
+pub fn fix_url(url: &str) -> String {
+    if url.starts_with("https://mobile.twitter.com/") {
+        url.replacen("https://mobile.twitter.com/", "https://twitter.com/", 1)
+    } else {
+        String::from(url)
+    }
+}
+
 pub fn resolve_url(url: &str, rtd: &Rtd) -> Result<String, Error> {
     let client = rtd.get_client()?;
-    let mut resp = client.request(url)?;
+    let mut resp = client.request(&fix_url(url))?;
     get_title(&mut resp, rtd, false)
 }
 
