@@ -59,7 +59,7 @@ default-features = false
 features = ["gif_codec", "jpeg", "png_codec", "pnm", "tiff", "bmp"]
 
 [features]
-default = []
+default = ["sqlite_bundled"]
 sqlite_bundled = ["rusqlite/bundled"]
 
 [package.metadata.deb]
