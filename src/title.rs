@@ -80,6 +80,11 @@ pub fn parse_title(page_contents: &str) -> Option<String> {
         .map(str::trim)
         .join(" ");
 
+    // Cloudflare's anti-bot page doesn't provide the real title
+    if title_one_line == "Just a moment..." {
+        return None;
+    }
+
     if title_one_line.is_empty() {
         return None;
     }
