@@ -85,6 +85,16 @@ pub fn parse_title(page_contents: &str) -> Option<String> {
         return None;
     }
 
+    // Useless imgur title
+    if title_one_line == "Imgur: The magic of the Internet" {
+        return None;
+    }
+
+    // Amazon anti-bot
+    if title_one_line == "Robot Check" {
+        return None;
+    }
+
     if title_one_line.is_empty() {
         return None;
     }
